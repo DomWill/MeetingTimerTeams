@@ -1,32 +1,42 @@
 {
   "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.9/MicrosoftTeams.schema.json",
-  "version": "{version}",
   "manifestVersion": "1.9",
-  "id": "{appid}",
+  "version": "1.0.0",
+  "id": "1ab065f0-8b32-4b28-b975-053737b309b8",
   "packageName": "com.company.example",
+  "developer": {
+    "name": "My Company",
+    "websiteUrl": "https://localhost:44357",
+    "privacyUrl": "https://localhost:44357/privacy",
+    "termsOfUseUrl": "https://localhost:44357/termsofuse"
+  },
+  "icons": {
+    "color": "../color.png",
+    "outline": "../outline.png"
+  },
   "name": {
     "short": "Meeting Timer",
     "full": "Meeting Timer"
-  },
-  "developer": {
-    "name": "My Company",
-    "mpnId": "",
-    "websiteUrl": "{baseUrl}",
-    "privacyUrl": "{baseUrl}/privacy",
-    "termsOfUseUrl": "{baseUrl}/termsofuse"
   },
   "description": {
     "short": "Short description for Meeting Timer.",
     "full": "Full description of Meeting Timer."
   },
-  "icons": {
-    "outline": "../outline.png",
-    "color": "../color.png"
+  "webApplicationInfo": {
+    "id": "4bc409b0-000c-4005-9b60-02801cea5c29",
+    "resource": "api://localhost/4bc409b0-000c-4005-9b60-02801cea5c29"
   },
   "accentColor": "#FFFFFF",
+  "permissions": [
+    "identity",
+    "messageTeamMembers"
+  ],
+  "validDomains": [
+    "localhost"
+  ],
   "configurableTabs": [
     {
-      "configurationUrl": "{baseUrl}/config",
+      "configurationUrl": "https://localhost:44357/config",
       "canUpdateConfiguration": true,
       "scopes": [
         "team",
@@ -38,22 +48,11 @@
     {
       "entityId": "index",
       "name": "Personal Tab",
-      "contentUrl": "{baseUrl}/tab",
-      "websiteUrl": "{baseUrl}/tab",
+      "contentUrl": "https://localhost:44357/tab",
+      "websiteUrl": "https://localhost:44357/tab",
       "scopes": [
         "personal"
       ]
     }
-  ],
-  "validDomains": [
-    "{frontEndDomain}"
-  ],
-  "permissions": [
-    "identity",
-    "messageTeamMembers"
-  ],
-  "webApplicationInfo": {
-    "id": "{appClientId}",
-    "resource": "api://{frontEndDomain}/{appClientId}"
-  }
+  ]
 }

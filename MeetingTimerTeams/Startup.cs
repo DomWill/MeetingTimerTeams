@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.TeamsFx.SimpleAuth;
 using System;
+using System.Diagnostics;
 
 namespace MeetingTimerTeams
 {
@@ -15,6 +16,8 @@ namespace MeetingTimerTeams
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+
+            Debug.WriteLine("Working");
         }
 
         public IConfiguration Configuration { get; }

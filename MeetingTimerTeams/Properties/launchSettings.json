@@ -11,7 +11,7 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "https://teams.microsoft.com/_#/l/app/{{{teams-app-id}}}?installAppPackage=true",
+      "launchUrl": "https://teams.microsoft.com/_#/l/app/1ab065f0-8b32-4b28-b975-053737b309b8?installAppPackage=true",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
@@ -20,7 +20,7 @@
       "commandName": "Project",
       "dotnetRunMessages": "true",
       "launchBrowser": true,
-      "launchUrl": "https://teams.microsoft.com/_#/l/app/{{{teams-app-id}}}?installAppPackage=true",
+      "launchUrl": "https://teams.microsoft.com/_#/l/app/1ab065f0-8b32-4b28-b975-053737b309b8?installAppPackage=true",
       "applicationUrl": "https://localhost:44357;http://localhost:50086",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
