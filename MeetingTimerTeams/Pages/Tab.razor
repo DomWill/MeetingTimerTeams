@@ -12,21 +12,51 @@
         <h1 class="center">
             Meeting Zen
         </h1>
-        <h3>5min for your mind and between meetings</h3>
+        <h3 class="center">5min for your mind and between meetings</h3>
+         <div class="sections">
+            @if (!IsLoading)
+            {
+                @*<h2>Get the user's profile photo!</h2>
+                    <InputComponent></InputComponent>
 
+                    <p>
+                    Click below to authorize this app to read your profile photo using
+                    Microsoft Graph.
+                    </p>*@
+                <FluentButton Appearance="Appearance.Accent" @onclick="GetUserProfilePhoto">Authorize</FluentButton>
+                <FluentButton Appearance="Appearance.Accent" @onclick="GetUserCalendar">Calendar</FluentButton>
+
+
+            }
+            else if (IsLoading)
+            {
+                <FluentProgressRing class="center" />
+            }
+        </div>
 
         @if (calendarEvents != null)
-        {            
-            <FluentRadioGroup @bind-value="eventID" >
+        {
+            <FluentRadioGroup @bind-value="eventID">
                 @foreach (var cal in calendarEvents)
                 {
-                    <FluentRadio Value="@cal.Subject" @onclick="(() => PrintValue(cal.Subject))" >@cal.Subject</FluentRadio>
+                    <FluentRadio Value="@cal.Subject" @onclick="(() => ViewEventDetails(cal))">@cal.Subject</FluentRadio>
                 }
 
             </FluentRadioGroup>
+            <br>
         }
 
-        Selected: @eventID
+        @if (meetingTitle != null)
+        {
+            <FluentMenu>
+                <FluentMenuItem>Meeting: @meetingTitle </FluentMenuItem>
+                <FluentMenuItem>Start time: @meetingStart</FluentMenuItem>
+                <FluentMenuItem>End time: @meetingEnd </FluentMenuItem>
+            </FluentMenu>
+            <br>
+           <FluentButton Appearance="Appearance.Accent" @onclick="GetUserCalendar">Shorten 5 min</FluentButton>
+
+        }
 
         @if (!String.IsNullOrEmpty(UserPhotoUri))
         {
@@ -38,33 +68,7 @@
                     <p>@Email</p>
                 </div>
             </div>
-        }
-
-        Meeting: 
-        Start time: 
-        End time:
-
-
-        <div class="sections">
-            @if (!IsLoading)
-            {
-                <h2>Get the user's profile photo!</h2>
-                <InputComponent></InputComponent>
-
-                <p>
-                    Click below to authorize this app to read your profile photo using
-                    Microsoft Graph.
-                </p>
-                <FluentButton Appearance="Appearance.Accent" @onclick="GetUserProfilePhoto">Authorize</FluentButton>
-                <FluentButton Appearance="Appearance.Accent" @onclick="GetUserCalendar">Calendar</FluentButton>
-
-
-            }
-            else if (IsLoading)
-            {
-                <FluentProgressRing class="center" />
-            }
-        </div>
+        }      
 
     </div>
 </div>
@@ -84,7 +88,7 @@
     public string meetingStart { get; set; }
     public string meetingEnd { get; set; }
 
-    
+
 
     public string eventID = "Test";
     public int dollars;
@@ -110,10 +114,16 @@
 
     }
 
-    public void PrintValue(string subject)
+    public void ViewEventDetails(Microsoft.Graph.Event calEvent)
     {
-        //Console.WriteLine("Got calendar details" + eventID);
-        eventID = "Working! " + subject;
+        TimeZoneInfo systemTimeZone = TimeZoneInfo.Local;
+        DateTime startTime = TimeZoneInfo.ConvertTimeFromUtc(Convert.ToDateTime(calEvent.Start.DateTime.ToString()), systemTimeZone);
+        DateTime endTime = TimeZoneInfo.ConvertTimeFromUtc(Convert.ToDateTime(calEvent.End.DateTime.ToString()), systemTimeZone);
+
+        meetingTitle = calEvent.Subject;
+        meetingStart = startTime.ToString();
+        meetingEnd = endTime.ToString();
+
     }
 
     private async Task GetUserProfilePhoto()
