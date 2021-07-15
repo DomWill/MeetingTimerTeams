@@ -16,17 +16,7 @@
         <div class="sections">
             @if (!IsLoading)
             {
-                @*<h2>Get the user's profile photo!</h2>
-                    <InputComponent></InputComponent>
-
-                    <p>
-                    Click below to authorize this app to read your profile photo using
-                    Microsoft Graph.
-                    </p>*@
-                @*<FluentButton Appearance="Appearance.Accent" @onclick="GetUserProfilePhoto">Authorize</FluentButton>*@
                 <FluentButton Appearance="Appearance.Accent" @onclick="GetUserCalendar">Calendar</FluentButton>
-
-
             }
             else if (IsLoading)
             {
@@ -41,7 +31,6 @@
                 {
                     <FluentRadio Value="@cal.Subject" @onclick="(() => ViewEventDetails(cal))">@cal.Subject</FluentRadio>
                 }
-
             </FluentRadioGroup>
             <br>
         }
@@ -55,9 +44,9 @@
             </FluentMenu>
             <br>
             <FluentButton Appearance="Appearance.Accent" @onclick="MeetingZenClick">Shorten 5 min</FluentButton>
-
+            <FluentBadge Appearance="Appearance.Neutral">@zenMessage</FluentBadge>
+  
         }
-
         @if (!String.IsNullOrEmpty(UserPhotoUri))
         {
             <div class="profile">
@@ -78,22 +67,24 @@
     TeamsFx teamsfx => _teamsfx ??= new TeamsFx(jsRuntime);
     string _clientId, _endpoint;
 
+    public string meetingTitle { get; set; }
+    public string meetingStart { get; set; }
+    public string meetingEnd { get; set; }
+    public string zenMessage { get; set; }
+    public string eventID = "";
+
+    private Microsoft.Graph.Event selectedEvent;
+    private TimeZoneInfo systemTimeZone = TimeZoneInfo.Local;
+    public IUserCalendarViewCollectionPage calendarEvents { get; set; }
+
+    #region UserProfileFields
     public string UserName { get; set; }
     public string Email { get; set; }
     public string Title { get; set; }
     public string UserPhotoUri { get; set; }
     public bool IsLoading { get; set; }
+    #endregion
 
-    public string meetingTitle { get; set; }
-    public string meetingStart { get; set; }
-    public string meetingEnd { get; set; }
-
-    private Microsoft.Graph.Event selectedEvent;
-
-    public string eventID = "Test";
-    public int dollars;
-
-    public IUserCalendarViewCollectionPage calendarEvents { get; set; }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -114,9 +105,30 @@
 
     }
 
+    private async Task GetUserCalendar()
+    {
+            var queryOptions = new List<QueryOption>()
+            {
+            new QueryOption("startdatetime", DateTimeTimeZone.FromDateTime(DateTime.Now.ToUniversalTime()).DateTime),
+            new QueryOption("enddatetime", DateTimeTimeZone.FromDateTime(DateTime.Now.AddDays(7).ToUniversalTime()).DateTime)
+            };
+
+        var graphClient = teamsfx.GetGraphServiceClient();
+        try
+        {
+            var calendar = await graphClient.Me.CalendarView.Request(queryOptions).GetAsync();
+
+            calendarEvents = calendar;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error " + ex.Message);
+        }
+    }
+
     public void ViewEventDetails(Microsoft.Graph.Event calEvent)
     {
-        TimeZoneInfo systemTimeZone = TimeZoneInfo.Local;
+        zenMessage = "";
         DateTime startTime = TimeZoneInfo.ConvertTimeFromUtc(Convert.ToDateTime(calEvent.Start.DateTime.ToString()), systemTimeZone);
         DateTime endTime = TimeZoneInfo.ConvertTimeFromUtc(Convert.ToDateTime(calEvent.End.DateTime.ToString()), systemTimeZone);
 
@@ -142,6 +154,9 @@
             await graphClient.Me.Events[eventUpdate.Id]
                 .Request()
                 .UpdateAsync(@eventUpdate);
+                meetingEnd = endTime.ToLocalTime().ToString();
+                zenMessage = "☯ 5min given back ☯";
+
         }catch (Exception ex)
         {
             Console.WriteLine("Error " + ex.Message);
@@ -177,31 +192,5 @@
         {
             IsLoading = false;
         }
-    }
-
-    private async Task GetUserCalendar()
-    {
-
-        var queryOptions = new List<QueryOption>()
-    {
-    new QueryOption("startdatetime", "2021-06-28T00:58:03.688Z"),
-    new QueryOption("enddatetime", "2021-07-05T00:58:03.688Z")
-    };
-
-
-        var graphClient = teamsfx.GetGraphServiceClient();
-        try
-        {
-            var calendar = await graphClient.Me.CalendarView.Request(queryOptions).GetAsync();
-
-            calendarEvents = calendar;
-            //string calType = calendar.GetType().ToString();
-            //Console.WriteLine("Got calendar details" + calType);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("Error " + ex.Message);
-        }
-    }
-
+    }   
 }
