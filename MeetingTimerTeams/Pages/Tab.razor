@@ -13,18 +13,12 @@
             Meeting Zen
         </h1>
         <h3 class="center">5min for your mind and between meetings</h3>
-        <div class="sections">
+        <div class="center">
             @if (!IsLoading)
             {
-                <FluentButton Appearance="Appearance.Accent" @onclick="GetUserCalendar">Calendar</FluentButton>
-            }
-            else if (IsLoading)
-            {
-                <FluentProgressRing class="center" />
-            }
-        </div>
+                @*<FluentButton Appearance="Appearance.Accent" @onclick="GetUserCalendar">Calendar</FluentButton>*@
 
-        @if (calendarEvents != null)
+                 @if (calendarEvents != null)
         {
             <FluentRadioGroup @bind-value="eventID">
                 @foreach (var cal in calendarEvents)
@@ -45,8 +39,17 @@
             <br>
             <FluentButton Appearance="Appearance.Accent" @onclick="MeetingZenClick">Shorten 5 min</FluentButton>
             <FluentBadge Appearance="Appearance.Neutral">@zenMessage</FluentBadge>
-  
+
         }
+            }
+            else if (IsLoading)
+            {
+                <FluentProgressRing class="center"/>
+               <text>Getting meetings you organized</text> 
+            }
+        </div>
+
+       
         @if (!String.IsNullOrEmpty(UserPhotoUri))
         {
             <div class="profile">
@@ -103,38 +106,69 @@
         }
         catch (Exception) { }
 
+        if (firstRender)
+        {
+            await GetUserCalendar();
+        }
+
+    }
+
+    void StartupMethod()
+    {
+        //GetUserCalendar();
+    }
+
+    Task SomeStartupTask()
+    {
+        return Task.CompletedTask;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        //StartupMethod();
+        //await SomeStartupTask();
+
+        await GetUserCalendar();
     }
 
     private async Task GetUserCalendar()
     {
-            var queryOptions = new List<QueryOption>()
-            {
-            new QueryOption("startdatetime", DateTimeTimeZone.FromDateTime(DateTime.Now.ToUniversalTime()).DateTime),
-            new QueryOption("enddatetime", DateTimeTimeZone.FromDateTime(DateTime.Now.AddDays(7).ToUniversalTime()).DateTime)
-            };
-
-        var graphClient = teamsfx.GetGraphServiceClient();
         try
         {
-            var calendar = await graphClient.Me.CalendarView.Request(queryOptions).GetAsync();
+            IsLoading = true;
 
-            calendarEvents = calendar;
-        }
-        catch (Exception ex)
+            var queryOptions = new List<QueryOption>()
         {
-            Console.WriteLine("Error " + ex.Message);
+        new QueryOption("startdatetime", DateTimeTimeZone.FromDateTime(DateTime.Now.ToUniversalTime()).DateTime),
+        new QueryOption("enddatetime", DateTimeTimeZone.FromDateTime(DateTime.Now.AddDays(7).ToUniversalTime()).DateTime)
+        };
+
+            var graphClient = teamsfx.GetGraphServiceClient();
+            try
+            {
+                var calendar = await graphClient.Me.CalendarView.Request(queryOptions).GetAsync();
+                calendarEvents = calendar;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error " + ex.Message);
+            }
+        }
+        finally
+        {
+            IsLoading = false;
         }
     }
 
     public void ViewEventDetails(Microsoft.Graph.Event calEvent)
     {
-        zenMessage = "";
         DateTime startTime = TimeZoneInfo.ConvertTimeFromUtc(Convert.ToDateTime(calEvent.Start.DateTime.ToString()), systemTimeZone);
         DateTime endTime = TimeZoneInfo.ConvertTimeFromUtc(Convert.ToDateTime(calEvent.End.DateTime.ToString()), systemTimeZone);
 
         meetingTitle = calEvent.Subject;
         meetingStart = startTime.ToString();
         meetingEnd = endTime.ToString();
+        zenMessage = "";
 
         selectedEvent = calEvent;
     }
@@ -154,10 +188,11 @@
             await graphClient.Me.Events[eventUpdate.Id]
                 .Request()
                 .UpdateAsync(@eventUpdate);
-                meetingEnd = endTime.ToLocalTime().ToString();
-                zenMessage = "☯ 5min given back ☯";
+            meetingEnd = endTime.ToLocalTime().ToString();
+            zenMessage = "☯ 5min given back ☯";
 
-        }catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             Console.WriteLine("Error " + ex.Message);
         }
@@ -192,5 +227,5 @@
         {
             IsLoading = false;
         }
-    }   
+    }
 }
