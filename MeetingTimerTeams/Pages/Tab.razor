@@ -33,7 +33,7 @@
         {
             <FluentMenu>
                 <FluentMenuItem>Meeting: @meetingTitle </FluentMenuItem>
-                <FluentMenuItem>Start time: @meetingStart</FluentMenuItem>
+                <FluentMenuItem>Start time: <b>@meetingStart</b></FluentMenuItem>
                 <FluentMenuItem>End time: @meetingEnd </FluentMenuItem>
             </FluentMenu>
             <br>
@@ -168,8 +168,8 @@
         DateTime endTime = TimeZoneInfo.ConvertTimeFromUtc(Convert.ToDateTime(calEvent.End.DateTime.ToString()), systemTimeZone);
 
         meetingTitle = calEvent.Subject;
-        meetingStart = startTime.ToString();
-        meetingEnd = endTime.ToString();
+        meetingStart = startTime.ToString(); 
+        meetingEnd = endTime.ToString(); 
         zenMessage = "";
 
         selectedEvent = calEvent;
@@ -179,18 +179,18 @@
     {
         var graphClient = teamsfx.GetGraphServiceClient();
         var eventUpdate = selectedEvent;
-        string endTimeStr = eventUpdate.End.DateTime;
-        DateTime endTime = DateTime.Parse(endTimeStr);
+        string startTimeStr = eventUpdate.Start.DateTime;
+        DateTime startTime = DateTime.Parse(startTimeStr);
 
-        endTime = endTime.AddMinutes(-5);
-        eventUpdate.End.DateTime = DateTimeTimeZone.FromDateTime(endTime).DateTime;
+        startTime = startTime.AddMinutes(5);
+        eventUpdate.Start.DateTime = DateTimeTimeZone.FromDateTime(startTime).DateTime;
 
         try
         {
             await graphClient.Me.Events[eventUpdate.Id]
                 .Request()
                 .UpdateAsync(@eventUpdate);
-            meetingEnd = endTime.ToLocalTime().ToString();
+            meetingStart = startTime.ToLocalTime().ToString();
             zenMessage = "☯ 5min given back ☯";
 
         }
