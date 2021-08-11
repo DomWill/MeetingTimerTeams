@@ -140,13 +140,15 @@
             var queryOptions = new List<QueryOption>()
         {
         new QueryOption("startdatetime", DateTimeTimeZone.FromDateTime(DateTime.Now.ToUniversalTime()).DateTime),
-        new QueryOption("enddatetime", DateTimeTimeZone.FromDateTime(DateTime.Now.AddDays(7).ToUniversalTime()).DateTime)
+        new QueryOption("enddatetime", DateTimeTimeZone.FromDateTime(DateTime.Now.AddDays(7).ToUniversalTime()).DateTime),
+        new QueryOption("$filter","isOrganizer eq true" )
         };
 
             var graphClient = teamsfx.GetGraphServiceClient();
             try
             {
                 var calendar = await graphClient.Me.CalendarView.Request(queryOptions).GetAsync();
+
                 calendarEvents = calendar;
             }
             catch (Exception ex)

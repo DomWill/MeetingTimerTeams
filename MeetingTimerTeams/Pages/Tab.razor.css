@@ -59,7 +59,7 @@ code {
 	color: red;
 }
 
-.profile {
+/*.profile {
 	display: flex;
 	margin: 1em 0;
 	background-color: white;
@@ -84,4 +84,4 @@ code {
 
 		.profile > .info > p {
 			margin: 0;
-		}
+		}*/
